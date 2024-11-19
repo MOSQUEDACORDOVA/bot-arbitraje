@@ -44,4 +44,37 @@ class BinanceService
             \Log::error('Error al obtener balances: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Realizar una orden de compra para intercambiar USDT por USDC.
+     *
+     * @param string $quantity Cantidad de USDT a usar.
+     * @return array|null
+     */
+    public function buyUSDCWithUSDT($quantity)
+    {
+        try {
+            // Crear la orden de compra
+            $order = $this->api->marketBuy('USDCUSDT', $quantity);
+            
+            // Verificar si la orden fue exitosa
+            if (isset($order['status']) && $order['status'] == 'FILLED') {
+                return [
+                    'status' => 'success',
+                    'message' => 'Compra exitosa',
+                    'order' => $order
+                ];
+            }
+
+            return [
+                'status' => 'error',
+                'message' => 'La compra no se completó correctamente',
+                'order' => $order
+            ];
+
+        } catch (\Exception $e) {
+            // Manejo de errores
+            return ['error' => $e->getMessage()];
+        }
+    }
 }

@@ -48,4 +48,31 @@ class BinanceController extends Controller
 
         return response()->json(['error' => 'No se pudo obtener el saldo'], 500);
     }
+
+    /**
+     * Comprar USDC usando USDT.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function buyUSDC(Request $request)
+    {
+        $quantity = $request->input('quantity'); // Cantidad de USDT que deseas intercambiar
+
+        if (!$quantity || $quantity <= 0) {
+            return response()->json(['error' => 'Por favor ingresa una cantidad válida de USDT.'], 400);
+        }
+
+        $result = $this->binanceService->buyUSDCWithUSDT($quantity);
+
+        if (isset($result['status']) && $result['status'] == 'success') {
+            return response()->json([
+                'status' => 'success',
+                'message' => $result['message'],
+                'order' => $result['order']
+            ]);
+        }
+
+        return response()->json(['error' => $result['error'] ?? 'Hubo un error al realizar la compra.'], 500);
+    }
 }
